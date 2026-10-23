@@ -38,6 +38,17 @@ const userSchema = new mongoose.Schema({
     passwordResetOtpExpiresAt: { type: Date, select: false },
     passwordResetOtpAttempts: { type: Number, default: 0, select: false },
     passwordResetOtpRequestedAt: { type: Date, select: false },
+    // Optional profile media is compressed in the browser and stored as validated data URLs.
+    profilePicture: { type: String, default: '', maxlength: 700000 },
+    coverImage: { type: String, default: '', maxlength: 700000 },
+    headline: { type: String, default: '', trim: true, maxlength: 120 },
+    location: { type: String, default: '', trim: true, maxlength: 120 },
+    degree: { type: String, default: '', trim: true, maxlength: 120 },
+    graduationYear: { type: String, default: '', trim: true, maxlength: 20 },
+    portfolioUrl: { type: String, default: '', trim: true, maxlength: 300 },
+    linkedinUrl: { type: String, default: '', trim: true, maxlength: 300 },
+    githubUrl: { type: String, default: '', trim: true, maxlength: 300 },
+    interests: [{ type: String, trim: true, maxlength: 50 }],
     university: {
         type: String,
         required: [true, 'University is required'],
