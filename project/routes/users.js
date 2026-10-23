@@ -32,7 +32,12 @@ router.get('/:id', protect, async (req, res) => {
             user: {
                 _id: user._id, name: user.name, university: user.university,
                 department: user.department, year: user.year, skills: user.skills,
-                bio: user.bio, anonToken: user.anonToken, createdAt: user.createdAt
+                bio: user.bio, anonToken: user.anonToken, createdAt: user.createdAt,
+                profilePicture: user.profilePicture || '', coverImage: user.coverImage || '',
+                headline: user.headline || '', location: user.location || '', degree: user.degree || '',
+                graduationYear: user.graduationYear || '', portfolioUrl: user.portfolioUrl || '',
+                linkedinUrl: user.linkedinUrl || '', githubUrl: user.githubUrl || '',
+                interests: user.interests || []
             },
             projects,
             stats: {
@@ -65,13 +70,55 @@ router.put('/:id', protect, [
             return res.status(400).json({ message: errors.array()[0].msg });
         }
 
-        const allowedFields = ['name', 'university', 'department', 'year', 'skills', 'bio'];
+        const allowedFields = [
+            'name', 'university', 'department', 'year', 'skills', 'bio',
+            'profilePicture', 'coverImage', 'headline', 'location', 'degree',
+            'graduationYear', 'portfolioUrl', 'linkedinUrl', 'githubUrl', 'interests'
+        ];
         const updates = {};
         allowedFields.forEach(field => {
-            if (req.body[field] !== undefined) {
-                updates[field] = req.body[field];
-            }
+            if (req.body[field] !== undefined) updates[field] = req.body[field];
         });
+
+        // Accept only browser-compressed JPG/PNG/WebP data URLs; SVG is intentionally excluded.
+        const imagePattern = /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/i;
+        for (const field of ['profilePicture', 'coverImage']) {
+            if (updates[field] !== undefined) {
+                if (typeof updates[field] !== 'string' || updates[field].length > 700000 ||
+                    (updates[field] !== '' && !imagePattern.test(updates[field]))) {
+                    return res.status(400).json({ message: 'Images must be JPG, PNG or WebP and smaller than 500 KB after compression.' });
+                }
+            }
+        }
+        const stringLimits = {
+            headline: 120, location: 120, degree: 120, graduationYear: 20,
+            portfolioUrl: 300, linkedinUrl: 300, githubUrl: 300, bio: 500
+        };
+        for (const [field, maxLength] of Object.entries(stringLimits)) {
+            if (updates[field] !== undefined) {
+                if (typeof updates[field] !== 'string' || updates[field].trim().length > maxLength) {
+                    return res.status(400).json({ message: `${field} must be at most ${maxLength} characters.` });
+                }
+                updates[field] = updates[field].trim();
+            }
+        }
+        for (const field of ['portfolioUrl', 'linkedinUrl', 'githubUrl']) {
+            if (updates[field]) {
+                try {
+                    const parsed = new URL(updates[field]);
+                    if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Invalid protocol');
+                } catch {
+                    return res.status(400).json({ message: 'Profile links must be valid http or https URLs.' });
+                }
+            }
+        }
+        if (updates.interests !== undefined) {
+            if (!Array.isArray(updates.interests) || updates.interests.length > 20 ||
+                updates.interests.some(item => typeof item !== 'string' || item.trim().length > 50)) {
+                return res.status(400).json({ message: 'Add up to 20 interests, with no more than 50 characters each.' });
+            }
+            updates.interests = updates.interests.map(item => item.trim()).filter(Boolean);
+        }
 
         const user = await User.findByIdAndUpdate(req.params.id, updates, {
             new: true,
