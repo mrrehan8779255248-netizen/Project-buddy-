@@ -2445,3 +2445,74 @@ button:disabled { opacity: .65; cursor: wait; }
     .hero-illustration { height: 280px; }
     .auth-card h2 { font-size: 1.6rem; }
 }
+
+
+/* ===== PROFILE PHOTOS, COVER AND EXPANDED PERSONAL DETAILS ===== */
+.profile-banner {
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.2s ease;
+}
+.profile-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.profile-headline {
+    color: var(--primary);
+    font-weight: 600;
+    margin: 0 0 8px;
+}
+.profile-details-list {
+    display: grid;
+    gap: 12px;
+}
+.profile-detail-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-light);
+}
+.profile-detail-row span { color: var(--text-muted); flex: 0 0 40%; }
+.profile-detail-row strong {
+    color: var(--text-primary);
+    text-align: right;
+    overflow-wrap: anywhere;
+    font-weight: 600;
+}
+.profile-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.profile-detail-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    border-radius: 999px;
+    color: var(--primary);
+    background: var(--primary-light);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+.profile-upload-row { display: flex; align-items: center; gap: 14px; }
+.profile-upload-controls { display: grid; align-content: start; gap: 8px; min-width: 0; }
+.profile-image-preview {
+    display: block;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    background: var(--bg);
+}
+.profile-avatar-preview { width: 84px; height: 84px; border-radius: 50%; flex: 0 0 auto; }
+.profile-cover-preview { width: 100%; max-height: 180px; aspect-ratio: 3 / 1; border-radius: var(--radius-md); margin: 8px 0; }
+.btn-small { padding: 7px 12px; font-size: 0.82rem; width: fit-content; }
+@media (max-width: 640px) {
+    .profile-details-list { gap: 10px; }
+    .profile-detail-row { gap: 10px; }
+    .profile-detail-row span { flex-basis: 36%; }
+    .profile-upload-row { align-items: flex-start; }
+    .profile-avatar-preview { width: 68px; height: 68px; }
+}
