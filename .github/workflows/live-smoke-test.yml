@@ -28,7 +28,10 @@ jobs:
             sleep 5
           done
           test "$homepage_ok" = "1"
-          echo "Homepage: HTTP 200"
+          grep -q 'profileDetailsSection' /tmp/projectbuddy-home.html
+          grep -q 'editProfilePictureFile' /tmp/projectbuddy-home.html
+          grep -q 'editCoverImageFile' /tmp/projectbuddy-home.html
+          echo "Homepage: HTTP 200; profile photo, cover upload and personal details UI present"
 
       - name: Verify real CSS is served by Vercel CDN
         shell: bash
@@ -39,7 +42,9 @@ jobs:
           grep -Eiq '^content-type:[[:space:]]*text/css' /tmp/projectbuddy-css.headers
           grep -q -- '--primary:' /tmp/projectbuddy-style.css
           grep -q '\.navbar' /tmp/projectbuddy-style.css
-          echo "CSS: text/css, ProjectBuddy style rules present"
+          grep -q '\.profile-avatar img' /tmp/projectbuddy-style.css
+          grep -q '\.profile-cover-preview' /tmp/projectbuddy-style.css
+          echo "CSS: correct content type, theme and profile image styles present"
 
       - name: Verify frontend JavaScript is served
         shell: bash
@@ -50,7 +55,10 @@ jobs:
           test "$code" = "200"
           grep -Eiq '^content-type:[[:space:]]*(application|text)/(javascript|ecmascript)' /tmp/projectbuddy-js.headers
           grep -q 'DOMContentLoaded' /tmp/projectbuddy-app.js
-          echo "JavaScript: correct content type and app code present"
+          grep -q 'handleProfileImageSelection' /tmp/projectbuddy-app.js
+          grep -q 'editInterests' /tmp/projectbuddy-app.js
+          grep -q 'editProfilePictureData' /tmp/projectbuddy-app.js
+          echo "JavaScript: content type, profile photo handler and personal fields present"
 
       - name: Check MongoDB-backed health endpoint
         shell: bash
@@ -87,3 +95,20 @@ jobs:
             cat /tmp/projectbuddy-recovery.json || true
             exit 1
           fi
+
+      - name: Check source JavaScript syntax and synchronized assets
+        uses: actions/checkout@v4
+
+      - name: Validate source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check project/server.js
+          node --check project/app.js
+          node --check project/public/app.js
+          node --check project/models/User.js
+          node --check project/routes/auth.js
+          node --check project/routes/users.js
+          cmp project/app.js project/public/app.js
+          cmp project/style.css project/public/style.css
+          echo "Syntax checks passed; public frontend assets match source files."
