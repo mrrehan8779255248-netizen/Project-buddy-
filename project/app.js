@@ -51,6 +51,10 @@ function mapBackendUser(user) {
         id: String(user._id || user.id), name: user.name || '', email: user.email || '',
         university: user.university || '', department: user.department || 'Other', year: user.year || '',
         skills: user.skills || [], bio: user.bio || '', status: user.status || 'active',
+        profilePicture: user.profilePicture || '', coverImage: user.coverImage || '',
+        headline: user.headline || '', location: user.location || '', degree: user.degree || '',
+        graduationYear: user.graduationYear || '', portfolioUrl: user.portfolioUrl || '',
+        linkedinUrl: user.linkedinUrl || '', githubUrl: user.githubUrl || '', interests: user.interests || [],
         anonToken: user.anonToken || '', bookmarks: (user.bookmarks || []).map(b => String(b._id || b)),
         createdAt: user.createdAt || new Date().toISOString(), lastLoginAt: user.lastLoginAt || null
     };
@@ -1198,11 +1202,32 @@ function renderProfile() {
     const db = getDB();
     const user = getCurrentUser();
 
-    document.getElementById('profileAvatar').textContent = getInitials(user.name);
+    const avatar = document.getElementById('profileAvatar');
+    avatar.replaceChildren();
+    if (user.profilePicture) {
+        const image = document.createElement('img');
+        image.src = user.profilePicture;
+        image.alt = `${user.name}'s profile photo`;
+        avatar.appendChild(image);
+    } else {
+        avatar.textContent = getInitials(user.name);
+    }
+    const banner = document.getElementById('profileBanner');
+    banner.style.backgroundImage = user.coverImage ? `url("${user.coverImage}")` : '';
     document.getElementById('profileName').textContent = user.name;
+    const headline = document.getElementById('profileHeadline');
+    headline.textContent = user.headline || '';
+    headline.classList.toggle('hidden', !user.headline);
     document.getElementById('profileDept').textContent = `${user.department} • ${user.year}`;
     document.getElementById('profileUni').textContent = user.university;
     document.getElementById('profileBio').textContent = user.bio;
+    document.getElementById('profileLocation').textContent = user.location || 'Not added';
+    document.getElementById('profileDegree').textContent = user.degree || 'Not added';
+    document.getElementById('profileGraduationYear').textContent = user.graduationYear || 'Not added';
+    document.getElementById('profileInterests').textContent = (user.interests || []).join(', ') || 'Not added';
+    setProfileLink('profilePortfolio', user.portfolioUrl);
+    setProfileLink('profileLinkedIn', user.linkedinUrl);
+    setProfileLink('profileGitHub', user.githubUrl);
     document.getElementById('profileAnonToken').textContent = user.anonToken || 'STU_NEW';
 
     document.getElementById('profileSkills').innerHTML =
@@ -1231,6 +1256,80 @@ function renderProfile() {
     }
 }
 
+function setProfileLink(elementId, value) {
+    const link = document.getElementById(elementId);
+    const url = String(value || '').trim();
+    if (!url) {
+        link.removeAttribute('href');
+        link.classList.add('hidden');
+        return;
+    }
+    link.href = url;
+    link.classList.remove('hidden');
+}
+
+async function handleProfileImageSelection(fileInput, dataFieldId, previewId, maxWidth, maxHeight) {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        showToast('Please choose a JPG, PNG, or WebP image.');
+        fileInput.value = '';
+        return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+        showToast('Please choose an image smaller than 8 MB.');
+        fileInput.value = '';
+        return;
+    }
+    const dataField = document.getElementById(dataFieldId);
+    const preview = document.getElementById(previewId);
+    try {
+        const source = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error('Could not read that image.'));
+                img.src = reader.result;
+            };
+            reader.onerror = () => reject(new Error('Could not read that image.'));
+            reader.readAsDataURL(file);
+        });
+        const scale = Math.min(1, maxWidth / source.naturalWidth, maxHeight / source.naturalHeight);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(source.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(source.naturalHeight * scale));
+        const context = canvas.getContext('2d');
+        context.drawImage(source, 0, 0, canvas.width, canvas.height);
+        let dataUrl = '';
+        for (let quality = 0.86; quality >= 0.50; quality -= 0.06) {
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+            if (dataUrl.length <= 650000) break;
+        }
+        if (dataUrl.length > 650000) {
+            showToast('That image is too detailed. Please choose a smaller image.');
+            fileInput.value = '';
+            return;
+        }
+        dataField.value = dataUrl;
+        preview.src = dataUrl;
+        preview.classList.remove('hidden');
+    } catch (error) {
+        showToast(error.message || 'Unable to prepare image.');
+        fileInput.value = '';
+    }
+}
+
+function clearProfileImage(dataFieldId, previewId) {
+    document.getElementById(dataFieldId).value = '';
+    const preview = document.getElementById(previewId);
+    preview.removeAttribute('src');
+    preview.classList.add('hidden');
+    const fileId = dataFieldId === 'editProfilePictureData' ? 'editProfilePictureFile' : 'editCoverImageFile';
+    const fileInput = document.getElementById(fileId);
+    if (fileInput) fileInput.value = '';
+}
+
 function openEditProfileModal() {
     const user = getCurrentUser();
     if (!user) return;
@@ -1241,6 +1340,23 @@ function openEditProfileModal() {
     document.getElementById('editYear').value = user.year;
     document.getElementById('editSkills').value = (user.skills || []).join(', ');
     document.getElementById('editBio').value = user.bio;
+    document.getElementById('editHeadline').value = user.headline || '';
+    document.getElementById('editLocation').value = user.location || '';
+    document.getElementById('editDegree').value = user.degree || '';
+    document.getElementById('editGraduationYear').value = user.graduationYear || '';
+    document.getElementById('editInterests').value = (user.interests || []).join(', ');
+    document.getElementById('editPortfolioUrl').value = user.portfolioUrl || '';
+    document.getElementById('editLinkedinUrl').value = user.linkedinUrl || '';
+    document.getElementById('editGithubUrl').value = user.githubUrl || '';
+    document.getElementById('editProfilePictureData').value = user.profilePicture || '';
+    document.getElementById('editCoverImageData').value = user.coverImage || '';
+    [['editProfilePicturePreview', user.profilePicture], ['editCoverImagePreview', user.coverImage]].forEach(([id, source]) => {
+        const preview = document.getElementById(id);
+        preview.src = source || '';
+        preview.classList.toggle('hidden', !source);
+    });
+    document.getElementById('editProfilePictureFile').value = '';
+    document.getElementById('editCoverImageFile').value = '';
 
     document.getElementById('editProfileModal').classList.remove('hidden');
 }
@@ -1256,7 +1372,17 @@ async function handleEditProfile(e) {
         department: document.getElementById('editDepartment').value,
         year: document.getElementById('editYear').value,
         skills: document.getElementById('editSkills').value.split(',').map(s => s.trim()).filter(Boolean),
-        bio: document.getElementById('editBio').value.trim()
+        bio: document.getElementById('editBio').value.trim(),
+        profilePicture: document.getElementById('editProfilePictureData').value,
+        coverImage: document.getElementById('editCoverImageData').value,
+        headline: document.getElementById('editHeadline').value.trim(),
+        location: document.getElementById('editLocation').value.trim(),
+        degree: document.getElementById('editDegree').value.trim(),
+        graduationYear: document.getElementById('editGraduationYear').value.trim(),
+        portfolioUrl: document.getElementById('editPortfolioUrl').value.trim(),
+        linkedinUrl: document.getElementById('editLinkedinUrl').value.trim(),
+        githubUrl: document.getElementById('editGithubUrl').value.trim(),
+        interests: document.getElementById('editInterests').value.split(',').map(s => s.trim()).filter(Boolean)
     };
     try {
         const updated = await apiRequest(`/api/users/${encodeURIComponent(user.id)}`, { method: 'PUT', body: JSON.stringify(payload) });
