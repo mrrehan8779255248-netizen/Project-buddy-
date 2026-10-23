@@ -460,7 +460,7 @@
     <!-- ===== PROFILE PAGE ===== -->
     <section class="page hidden" id="page-profile">
         <div class="profile-container">
-            <div class="profile-banner">
+            <div class="profile-banner" id="profileBanner" aria-label="Profile cover image">
                 <div class="profile-banner-overlay"></div>
             </div>
             <div class="profile-content">
@@ -471,6 +471,7 @@
                             <h1 id="profileName">Student</h1>
                             <span class="verified-student-tag"><i class="fas fa-check-circle"></i> Verified Student</span>
                         </div>
+                        <p class="profile-headline hidden" id="profileHeadline"></p>
                         <p class="profile-title" id="profileDept">Department • Year</p>
                         <p class="profile-uni"><i class="fas fa-university"></i> <span id="profileUni">University</span></p>
                     </div>
@@ -483,6 +484,20 @@
                         <div class="profile-section">
                             <h3><i class="fas fa-user"></i> About</h3>
                             <p id="profileBio">Passionate about building innovative solutions...</p>
+                        </div>
+                        <div class="profile-section" id="profileDetailsSection">
+                            <h3><i class="fas fa-address-card"></i> Personal Details</h3>
+                            <div class="profile-details-list">
+                                <div class="profile-detail-row"><span>Location</span><strong id="profileLocation">Not added</strong></div>
+                                <div class="profile-detail-row"><span>Course / Degree</span><strong id="profileDegree">Not added</strong></div>
+                                <div class="profile-detail-row"><span>Graduation</span><strong id="profileGraduationYear">Not added</strong></div>
+                                <div class="profile-detail-row"><span>Interests</span><strong id="profileInterests">Not added</strong></div>
+                            </div>
+                            <div class="profile-links">
+                                <a id="profilePortfolio" class="profile-detail-link hidden" target="_blank" rel="noopener noreferrer"><i class="fas fa-globe"></i> Portfolio</a>
+                                <a id="profileLinkedIn" class="profile-detail-link hidden" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                                <a id="profileGitHub" class="profile-detail-link hidden" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i> GitHub</a>
+                            </div>
                         </div>
                         <div class="profile-section">
                             <h3><i class="fas fa-code"></i> Skills & Expertise</h3>
@@ -713,6 +728,65 @@
                     <label>Full Name</label>
                     <input type="text" id="editName" required>
                 </div>
+                <div class="form-group">
+                    <label>Profile photo</label>
+                    <div class="profile-upload-row">
+                        <img id="editProfilePicturePreview" class="profile-image-preview profile-avatar-preview hidden" alt="Profile photo preview">
+                        <div class="profile-upload-controls">
+                            <input type="file" id="editProfilePictureFile" accept="image/jpeg,image/png,image/webp" onchange="handleProfileImageSelection(this, 'editProfilePictureData', 'editProfilePicturePreview', 512, 512)">
+                            <input type="hidden" id="editProfilePictureData">
+                            <button type="button" class="btn btn-outline btn-small" onclick="clearProfileImage('editProfilePictureData', 'editProfilePicturePreview')">Remove photo</button>
+                        </div>
+                    </div>
+                    <small>Choose a JPG, PNG or WebP image. It is resized before saving.</small>
+                </div>
+                <div class="form-group">
+                    <label>Profile cover / background image</label>
+                    <img id="editCoverImagePreview" class="profile-image-preview profile-cover-preview hidden" alt="Profile cover preview">
+                    <input type="file" id="editCoverImageFile" accept="image/jpeg,image/png,image/webp" onchange="handleProfileImageSelection(this, 'editCoverImageData', 'editCoverImagePreview', 1400, 600)">
+                    <input type="hidden" id="editCoverImageData">
+                    <button type="button" class="btn btn-outline btn-small" onclick="clearProfileImage('editCoverImageData', 'editCoverImagePreview')">Remove cover</button>
+                    <small>Recommended: wide landscape image. This image appears behind your profile header.</small>
+                </div>
+                <div class="form-group">
+                    <label>Profile headline</label>
+                    <input type="text" id="editHeadline" maxlength="120" placeholder="e.g. Computer science student building useful AI tools">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Location / City</label>
+                        <input type="text" id="editLocation" maxlength="120" placeholder="e.g. Mumbai, India">
+                    </div>
+                    <div class="form-group">
+                        <label>Course / Degree</label>
+                        <input type="text" id="editDegree" maxlength="120" placeholder="e.g. B.Tech in Computer Science">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Expected graduation</label>
+                        <input type="text" id="editGraduationYear" maxlength="20" placeholder="e.g. 2027">
+                    </div>
+                    <div class="form-group">
+                        <label>Interests (comma-separated)</label>
+                        <input type="text" id="editInterests" maxlength="1000" placeholder="e.g. AI, robotics, climate tech">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Portfolio URL</label>
+                    <input type="url" id="editPortfolioUrl" maxlength="300" placeholder="https://yourportfolio.example">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>LinkedIn URL</label>
+                        <input type="url" id="editLinkedinUrl" maxlength="300" placeholder="https://www.linkedin.com/in/your-profile">
+                    </div>
+                    <div class="form-group">
+                        <label>GitHub URL</label>
+                        <input type="url" id="editGithubUrl" maxlength="300" placeholder="https://github.com/yourusername">
+                    </div>
+                </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>University / College</label>
