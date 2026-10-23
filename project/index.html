@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectBuddy — Student Project Partner Matching & Collaboration</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <!-- ===== TOP SITEWIDE ANNOUNCEMENT BANNER ===== -->
+    <div id="announcementBanner" class="announcement-banner">
+        <div class="announcement-content">
+            <span class="announcement-tag"><i class="fas fa-bullhorn"></i> Announcement</span>
+            <span id="announcementText">🚀 Welcome to ProjectBuddy! Post your project idea title securely — full blueprints remain private until you accept a partner.</span>
+            <button class="announcement-close" onclick="dismissAnnouncement()">&times;</button>
+        </div>
+    </div>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo" onclick="showPage('landing')">
+                <i class="fas fa-rocket"></i> ProjectBuddy
+                <span class="logo-badge">Student Collab</span>
+            </a>
+
+            <!-- Logged-out nav -->
+            <div class="nav-links" id="navLoggedOut">
+                <a href="#" onclick="showPage('landing')">Home</a>
+                <a href="#" onclick="showPage('login')">Sign In</a>
+                <a href="#" onclick="showPage('register')" class="btn-nav-register">Join Now</a>
+            </div>
+
+            <!-- Logged-in nav -->
+            <div class="nav-links hidden" id="navLoggedIn">
+                <a href="#" onclick="showPage('feed')" class="nav-item"><i class="fas fa-home"></i> <span>Feed</span></a>
+                <a href="#" onclick="showPage('discover')" class="nav-item"><i class="fas fa-compass"></i> <span>Discover</span></a>
+                <a href="#" onclick="showPage('my-projects')" class="nav-item"><i class="fas fa-folder-open"></i> <span>My Projects</span></a>
+                <a href="#" onclick="showPage('requests')" class="nav-item">
+                    <i class="fas fa-handshake"></i> <span>Requests</span>
+                    <span class="badge hidden" id="requestBadge">0</span>
+                </a>
+                <a href="#" onclick="showPage('profile')" class="nav-item" id="navProfileItem"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
+                <a href="#" onclick="logout()" class="nav-item logout-btn" title="Sign Out"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== LANDING PAGE ===== -->
+    <section class="page" id="page-landing">
+        <div class="hero">
+            <div class="hero-content">
+                <div class="hero-chip">
+                    <i class="fas fa-shield-alt"></i> Zero-Knowledge Idea Protection System
+                </div>
+                <h1>Find Your Perfect <span class="gradient-text">Project Partner</span></h1>
+                <p class="hero-subtitle">
+                    The verified LinkedIn for students. Share your project title, match with peers based on complementary skills, and keep your full idea <strong>100% hidden and protected</strong> until you accept a collaborator.
+                </p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-lg" onclick="showPage('register')">
+                        <i class="fas fa-user-plus"></i> Join as Student
+                    </button>
+                    <button class="btn btn-outline btn-lg" onclick="showPage('login')">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat"><strong>Private</strong><span>Protected Blueprint Access</span></div>
+                    <div class="stat"><strong>Verified</strong><span>University Students</span></div>
+                    <div class="stat"><strong>Zero-Theft</strong><span>Mutual Partner Matching</span></div>
+                </div>
+            </div>
+            <div class="hero-illustration">
+                <div class="floating-cards">
+                    <div class="float-card card-1">
+                        <div class="fc-header">
+                            <div class="fc-icon"><i class="fas fa-lock"></i></div>
+                            <span class="match-pill">95% Skill Match</span>
+                        </div>
+                        <h4>AI-Powered Study Planner</h4>
+                        <p class="idea-hidden"><i class="fas fa-shield-alt"></i> Blueprint hidden until partnership accepted</p>
+                        <div class="fc-tags"><span>Python</span><span>TensorFlow</span><span>React</span></div>
+                    </div>
+                    <div class="float-card card-2">
+                        <div class="fc-header">
+                            <div class="fc-icon"><i class="fas fa-lock"></i></div>
+                            <span class="match-pill">88% Skill Match</span>
+                        </div>
+                        <h4>Smart Campus Energy Monitor</h4>
+                        <p class="idea-hidden"><i class="fas fa-shield-alt"></i> Idea hidden & watermarked</p>
+                        <div class="fc-tags"><span>Arduino</span><span>IoT</span><span>MQTT</span></div>
+                    </div>
+                    <div class="float-card card-3">
+                        <div class="fc-header">
+                            <div class="fc-icon"><i class="fas fa-lock"></i></div>
+                            <span class="match-pill">92% Skill Match</span>
+                        </div>
+                        <h4>Real-Time Whiteboard</h4>
+                        <p class="idea-hidden"><i class="fas fa-shield-alt"></i> Private project blueprint</p>
+                        <div class="fc-tags"><span>React</span><span>WebSocket</span><span>Canvas</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features-section">
+            <h2 class="section-title">Built Specially for University Students</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-user-secret"></i></div>
+                    <h3>Anti-Theft Idea Vault</h3>
+                    <p>Only your project title & tech stack are public. Your detailed blueprint and architecture remain hidden until you review and accept a partner.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-crosshairs"></i></div>
+                    <h3>Skill-Match Engine</h3>
+                    <p>Automatically calculates compatibility percentages between your profile skills and project requirements for pinpoint partner finding.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-comments"></i></div>
+                    <h3>Partner Collaboration Room</h3>
+                    <p>Once matched, access an interactive live workspace with direct messaging, project milestones, and unlocked specifications.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
+                    <h3>Account Privacy</h3>
+                    <p>Your account details stay protected. ProjectBuddy records only essential account activity to help maintain a reliable collaboration experience.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-bookmark"></i></div>
+                    <h3>Watchlist & Bookmarks</h3>
+                    <p>Save intriguing project ideas to your personal watchlist to analyze and send partnership proposals whenever you're ready.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-handshake-angle"></i></div>
+                    <h3>Mutual Trust Contracts</h3>
+                    <p>Digital collaboration commitments ensure all teammates understand project milestones and respect intellectual property.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== LOGIN PAGE ===== -->
+    <section class="page hidden" id="page-login">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2>Welcome Back</h2>
+                <p class="auth-subtitle">Sign in to manage your projects and collaboration requests</p>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>University Email</label>
+                        <input type="email" id="loginEmail" placeholder="you@university.edu" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+                </form>
+                <p class="auth-switch"><a href="#" onclick="showPage('recovery')">Forgot password?</a></p>
+                <p class="auth-switch">Don't have an account? <a href="#" onclick="showPage('register')">Join Now</a></p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ===== PASSWORD RECOVERY ===== -->
+    <section class="page hidden" id="page-recovery">
+        <div class="auth-container">
+            <div class="auth-card recovery-card">
+                <div class="recovery-icon"><i class="fas fa-key"></i></div>
+                <h2>Recover your account</h2>
+                <p class="auth-subtitle">We'll email you a one-time code to securely reset your password.</p>
+                <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)">
+                    <div class="form-group">
+                        <label>Email address</label>
+                        <input type="email" id="forgotEmail" placeholder="you@example.com" autocomplete="email" required>
+                    </div>
+                    <button type="submit" id="sendOtpButton" class="btn btn-primary btn-full">Send email code</button>
+                </form>
+                <form id="resetOtpForm" class="hidden" onsubmit="handleResetPassword(event)">
+                    <input type="hidden" id="resetEmail">
+                    <div class="form-group">
+                        <label>6-digit email code</label>
+                        <input type="text" id="resetOtp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="123456" required>
+                    </div>
+                    <div class="form-group">
+                        <label>New password</label>
+                        <input type="password" id="resetNewPassword" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm new password</label>
+                        <input type="password" id="resetConfirmPassword" minlength="8" autocomplete="new-password" placeholder="Repeat new password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Reset password</button>
+                    <button type="button" class="btn btn-ghost btn-full resend-code-btn" onclick="resendPasswordOtp()">Resend code</button>
+                </form>
+                <p id="recoveryStatus" class="recovery-status" role="status" aria-live="polite"></p>
+                <p class="auth-switch"><a href="#" onclick="showPage('login')">Back to sign in</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== REGISTER PAGE ===== -->
+    <section class="page hidden" id="page-register">
+        <div class="auth-container">
+            <div class="auth-card auth-card-wide">
+                <h2>Join ProjectBuddy</h2>
+                <p class="auth-subtitle">Create your student profile and find ideal collaborators</p>
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="regName" placeholder="e.g. Alex Morgan" required>
+                        </div>
+                        <div class="form-group">
+                            <label>University Email</label>
+                            <input type="email" id="regEmail" placeholder="alex@university.edu" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="regPassword" placeholder="Create a password (8+ characters)" minlength="8" autocomplete="new-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label>University / Institute</label>
+                            <input type="text" id="regUniversity" placeholder="e.g. Stanford University / MIT" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Department</label>
+                            <select id="regDepartment" required>
+                                <option value="">Select Department</option>
+                                <option>Computer Science</option>
+                                <option>Electrical Engineering</option>
+                                <option>Mechanical Engineering</option>
+                                <option>Civil Engineering</option>
+                                <option>Data Science</option>
+                                <option>Information Technology</option>
+                                <option>Electronics & Communication</option>
+                                <option>Biotechnology</option>
+                                <option>Business Administration</option>
+                                <option>Design</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Year of Study</label>
+                            <select id="regYear" required>
+                                <option value="">Select Year</option>
+                                <option>1st Year</option>
+                                <option>2nd Year</option>
+                                <option>3rd Year</option>
+                                <option>4th Year</option>
+                                <option>Post Graduate</option>
+                                <option>PhD</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Your Skills (comma-separated)</label>
+                        <input type="text" id="regSkills" placeholder="e.g. Python, React, Machine Learning, UI/UX, Node.js" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Short Bio</label>
+                        <textarea id="regBio" placeholder="What are your project goals and ideal teammate qualities?" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Create Student Profile</button>
+                </form>
+                <p class="auth-switch">Already registered? <a href="#" onclick="showPage('login')">Sign In</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FEED / HOME PAGE ===== -->
+    <section class="page hidden" id="page-feed">
+        <div class="feed-layout">
+            <!-- Left Sidebar - Mini Profile -->
+            <aside class="sidebar-left">
+                <div class="mini-profile-card">
+                    <div class="mini-profile-banner"></div>
+                    <div class="mini-avatar" id="feedAvatar">ST</div>
+                    <h3 id="feedName">Student</h3>
+                    <p class="mini-info" id="feedInfo">Department • Year</p>
+                    <p class="mini-uni" id="feedUni">University</p>
+                    <div class="mini-stats">
+                        <div><strong id="myProjectCount">0</strong><span>Hosted</span></div>
+                        <div><strong id="myPartnerCount">0</strong><span>Partners</span></div>
+                        <div><strong id="mySavedCount">0</strong><span>Saved</span></div>
+                    </div>
+                    <button class="btn btn-outline btn-sm btn-full" onclick="showPage('profile')">View Profile</button>
+                </div>
+
+                <div class="quick-actions">
+                    <button class="btn btn-primary btn-full" onclick="openPostModal()">
+                        <i class="fas fa-plus"></i> Post New Project
+                    </button>
+                </div>
+
+                <div class="sidebar-card" style="margin-top:16px;">
+                    <h3><i class="fas fa-shield-alt"></i> Idea Vault Status</h3>
+                    <div class="vault-status-indicator">
+                        <span class="pulse-dot"></span>
+                        <strong>100% Protection Active</strong>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">
+                        Only your project titles are indexed. Your detailed descriptions remain shielded until you accept a partnership request.
+                    </p>
+                </div>
+            </aside>
+
+            <!-- Main Feed -->
+            <main class="feed-main">
+                <!-- Post Prompt -->
+                <div class="post-prompt" onclick="openPostModal()">
+                    <div class="post-prompt-avatar" id="feedPromptAvatar">ST</div>
+                    <div class="post-prompt-input">
+                        <span>Have a problem or project idea? Share the title & find teammates...</span>
+                        <i class="fas fa-lock lock-indicator" title="Idea description will be hidden automatically"></i>
+                    </div>
+                </div>
+
+                <!-- Feed Filters -->
+                <div class="feed-filters">
+                    <button class="filter-chip active" onclick="filterFeed('all', this)"><i class="fas fa-fire"></i> All Projects</button>
+                    <button class="filter-chip" onclick="filterFeed('matched', this)"><i class="fas fa-bolt"></i> High Skill Match</button>
+                    <button class="filter-chip" onclick="filterFeed('saved', this)"><i class="fas fa-star"></i> Saved / Bookmarked</button>
+                    <button class="filter-chip" onclick="filterFeed('Computer Science', this)">CS</button>
+                    <button class="filter-chip" onclick="filterFeed('Data Science', this)">Data Science</button>
+                    <button class="filter-chip" onclick="filterFeed('Design', this)">Design</button>
+                    <button class="filter-chip" onclick="filterFeed('Electrical Engineering', this)">EE</button>
+                </div>
+
+                <!-- Feed Projects -->
+                <div id="feedProjects">
+                    <!-- Populated dynamically -->
+                </div>
+            </main>
+
+            <!-- Right Sidebar - Suggestions & Trending -->
+            <aside class="sidebar-right">
+                <div class="sidebar-card">
+                    <h3><i class="fas fa-bullseye"></i> High-Match Projects</h3>
+                    <div id="suggestedProjects">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <h3><i class="fas fa-bolt"></i> In-Demand Technologies</h3>
+                    <div class="trending-skills">
+                        <span class="trend-tag" onclick="quickFilterSkill('Python')">Python</span>
+                        <span class="trend-tag" onclick="quickFilterSkill('React')">React</span>
+                        <span class="trend-tag" onclick="quickFilterSkill('TensorFlow')">TensorFlow</span>
+                        <span class="trend-tag" onclick="quickFilterSkill('Flutter')">Flutter</span>
+                        <span class="trend-tag" onclick="quickFilterSkill('Node.js')">Node.js</span>
+                        <span class="trend-tag" onclick="quickFilterSkill('Figma')">Figma</span>
+                        <span class="trend-tag" onclick="quickFilterSkill('IoT')">IoT</span>
+                        <span class="trend-tag" onclick="quickFilterSkill('Bioinformatics')">Bioinformatics</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-card privacy-sidebar-card">
+                    <h3><i class="fas fa-fingerprint"></i> Anonymous Moderation</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">
+                        ProjectBuddy records only essential account events to support account security. Your password, recovery codes, private messages, and project blueprint text are not copied into the activity log.
+                    </p>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <!-- ===== DISCOVER PAGE ===== -->
+    <section class="page hidden" id="page-discover">
+        <div class="discover-container">
+            <div class="discover-header">
+                <h2><i class="fas fa-compass"></i> Discover Project Opportunities</h2>
+                <p>Browse project titles across all universities. Check the skill compatibility score and request to collaborate. Full blueprints are unlocked once partnered!</p>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="discoverSearch" placeholder="Search by title keywords or skill (e.g. AI, Arduino, Flutter)..." oninput="filterDiscover()">
+                <select id="discoverDept" onchange="filterDiscover()">
+                    <option value="">All Departments</option>
+                    <option>Computer Science</option>
+                    <option>Electrical Engineering</option>
+                    <option>Mechanical Engineering</option>
+                    <option>Data Science</option>
+                    <option>Information Technology</option>
+                    <option>Design</option>
+                    <option>Biotechnology</option>
+                </select>
+                <select id="discoverDifficulty" onchange="filterDiscover()">
+                    <option value="">All Levels</option>
+                    <option>Beginner</option>
+                    <option>Intermediate</option>
+                    <option>Advanced</option>
+                </select>
+            </div>
+            <div class="discover-grid" id="discoverGrid">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MY PROJECTS PAGE ===== -->
+    <section class="page hidden" id="page-my-projects">
+        <div class="my-projects-container">
+            <div class="my-projects-header">
+                <div>
+                    <h2><i class="fas fa-folder-open"></i> Project Workspace</h2>
+                    <p style="font-size:0.88rem; color:var(--text-secondary);">Manage your posted project ideas and active partnered collaborations</p>
+                </div>
+                <button class="btn btn-primary" onclick="openPostModal()">
+                    <i class="fas fa-plus"></i> Post New Project
+                </button>
+            </div>
+            <div class="my-projects-tabs">
+                <button class="tab-btn active" onclick="switchMyProjectTab('posted', this)">
+                    <i class="fas fa-file-code"></i> Posted by Me (<span id="myPostedCountBadge">0</span>)
+                </button>
+                <button class="tab-btn" onclick="switchMyProjectTab('partnered', this)">
+                    <i class="fas fa-handshake"></i> Active Partnerships (<span id="myPartneredCountBadge">0</span>)
+                </button>
+            </div>
+            <div id="myProjectsList">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== REQUESTS PAGE ===== -->
+    <section class="page hidden" id="page-requests">
+        <div class="requests-container">
+            <div class="requests-header">
+                <h2><i class="fas fa-handshake"></i> Partnership Inquiries</h2>
+                <p style="color:var(--text-secondary); font-size:0.9rem;">Review partner requests. When you accept an inquiry, your project idea description is revealed to the partner!</p>
+            </div>
+            <div class="requests-tabs">
+                <button class="tab-btn active" onclick="switchRequestTab('received', this)">
+                    Received Inquiries <span class="tab-count" id="receivedCount">0</span>
+                </button>
+                <button class="tab-btn" onclick="switchRequestTab('sent', this)">
+                    Sent Requests <span class="tab-count" id="sentCount">0</span>
+                </button>
+            </div>
+            <div id="requestsList">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PROFILE PAGE ===== -->
+    <section class="page hidden" id="page-profile">
+        <div class="profile-container">
+            <div class="profile-banner">
+                <div class="profile-banner-overlay"></div>
+            </div>
+            <div class="profile-content">
+                <div class="profile-header-section">
+                    <div class="profile-avatar" id="profileAvatar">ST</div>
+                    <div class="profile-header-info">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <h1 id="profileName">Student</h1>
+                            <span class="verified-student-tag"><i class="fas fa-check-circle"></i> Verified Student</span>
+                        </div>
+                        <p class="profile-title" id="profileDept">Department • Year</p>
+                        <p class="profile-uni"><i class="fas fa-university"></i> <span id="profileUni">University</span></p>
+                    </div>
+                    <button class="btn btn-outline" onclick="openEditProfileModal()">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                </div>
+                <div class="profile-body">
+                    <div class="profile-main">
+                        <div class="profile-section">
+                            <h3><i class="fas fa-user"></i> About</h3>
+                            <p id="profileBio">Passionate about building innovative solutions...</p>
+                        </div>
+                        <div class="profile-section">
+                            <h3><i class="fas fa-code"></i> Skills & Expertise</h3>
+                            <div class="skills-list" id="profileSkills">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                        <div class="profile-section">
+                            <h3><i class="fas fa-folder-open"></i> Projects Hosted</h3>
+                            <div id="profileProjects">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-sidebar">
+                        <div class="profile-stat-card">
+                            <h4>Collaboration Metric</h4>
+                            <div class="profile-stats-grid">
+                                <div class="p-stat">
+                                    <i class="fas fa-folder"></i>
+                                    <div><strong id="pStatProjects">0</strong><span>Projects Hosted</span></div>
+                                </div>
+                                <div class="p-stat">
+                                    <i class="fas fa-handshake"></i>
+                                    <div><strong id="pStatPartners">0</strong><span>Active Partners</span></div>
+                                </div>
+                                <div class="p-stat">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <div><strong id="pStatRequests">0</strong><span>Requests Dispatched</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-stat-card" style="margin-top:16px;">
+                            <h4>Anonymity Token</h4>
+                            <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:8px;">
+                                Your ProjectBuddy account reference:
+                            </p>
+                            <code class="anon-code" id="profileAnonToken">STU_000000</code>
+                            <small style="display:block; margin-top:8px; color:var(--secondary);">
+                                <i class="fas fa-shield-alt"></i> Zero-Knowledge Protected
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ===== INTERACTIVE PARTNER COLLABORATION WORKSPACE MODAL ===== -->
+    <div class="modal-overlay hidden" id="collaborationModal">
+        <div class="modal-card modal-xl">
+            <button class="modal-close" onclick="closeModal('collaborationModal')">&times;</button>
+            <div class="collab-workspace-header">
+                <div>
+                    <span class="nda-badge"><i class="fas fa-handshake"></i> Verified Mutual Partnership Workspace</span>
+                    <h2 id="collabProjectTitle">Project Title</h2>
+                    <p id="collabPartnerInfo">Collaborating with: <strong>Partner Name</strong></p>
+                </div>
+            </div>
+
+            <div class="collab-grid">
+                <!-- Left Pane: Unlocked Blueprint & Milestones -->
+                <div class="collab-blueprint-pane">
+                    <div class="collab-box-unlocked">
+                        <h4><i class="fas fa-unlock-alt"></i> Unlocked Full Project Idea & Blueprint</h4>
+                        <p id="collabProjectDescription">Full project details...</p>
+                    </div>
+
+                    <div class="collab-milestones-box">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <h4><i class="fas fa-list-check"></i> Project Milestones Checklist</h4>
+                            <span class="milestone-progress" id="milestoneProgress">0/4 Done</span>
+                        </div>
+                        <div class="milestone-list" id="milestoneList">
+                            <label class="milestone-item">
+                                <input type="checkbox" onchange="toggleMilestone(this)">
+                                <span>Problem definition & research baseline</span>
+                            </label>
+                            <label class="milestone-item">
+                                <input type="checkbox" onchange="toggleMilestone(this)">
+                                <span>System architecture & component diagrams</span>
+                            </label>
+                            <label class="milestone-item">
+                                <input type="checkbox" onchange="toggleMilestone(this)">
+                                <span>Functional prototype implementation</span>
+                            </label>
+                            <label class="milestone-item">
+                                <input type="checkbox" onchange="toggleMilestone(this)">
+                                <span>Testing, documentation & showcase demo</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Pane: Real-Time Partner Chat Stream -->
+                <div class="collab-chat-pane">
+                    <div class="chat-header">
+                        <h4><i class="fas fa-comments"></i> Partner Discussion Stream</h4>
+                        <span class="online-indicator"><i class="fas fa-circle"></i> Connected</span>
+                    </div>
+                    <div class="chat-messages-container" id="chatMessagesContainer">
+                        <!-- Populated dynamically with live messages -->
+                    </div>
+                    <form class="chat-input-bar" onsubmit="handleSendChatMessage(event)">
+                        <input type="text" id="chatInputMessage" placeholder="Type a message to your project partner..." required autocomplete="off">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== VIEW PROJECT MODAL ===== -->
+    <div class="modal-overlay hidden" id="viewProjectModal">
+        <div class="modal-card modal-lg">
+            <button class="modal-close" onclick="closeModal('viewProjectModal')">&times;</button>
+            <div id="viewProjectContent">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== POST PROJECT MODAL ===== -->
+    <div class="modal-overlay hidden" id="postProjectModal">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeModal('postProjectModal')">&times;</button>
+            <h2><i class="fas fa-lightbulb"></i> Post a New Project</h2>
+            <p class="modal-subtitle">Share your title publicly. Your detailed description stays <strong>private until you accept a partner</strong>.</p>
+            <form onsubmit="handlePostProject(event)">
+                <div class="form-group">
+                    <label>Project Title <span class="public-tag"><i class="fas fa-eye"></i> Publicly Visible</span></label>
+                    <input type="text" id="projectTitle" placeholder="e.g. Autonomous Campus Delivery Rover" required>
+                    <small>All students can see this title to discover your project</small>
+                </div>
+                <div class="form-group">
+                    <label>Detailed Idea Blueprint <span class="private-tag"><i class="fas fa-lock"></i> Hidden & Shielded</span></label>
+                    <textarea id="projectDescription" placeholder="Describe the problem, your architecture, and methodology in detail..." rows="5" required></textarea>
+                    <small>This text is protected and never shown until you accept a partnership request</small>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Department / Domain</label>
+                        <select id="projectDept" required>
+                            <option value="">Select Domain</option>
+                            <option>Computer Science</option>
+                            <option>Electrical Engineering</option>
+                            <option>Mechanical Engineering</option>
+                            <option>Data Science</option>
+                            <option>Information Technology</option>
+                            <option>Design</option>
+                            <option>Biotechnology</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Difficulty Level</label>
+                        <select id="projectDifficulty" required>
+                            <option value="">Select Level</option>
+                            <option>Beginner</option>
+                            <option>Intermediate</option>
+                            <option>Advanced</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Required Teammate Skills (comma-separated)</label>
+                    <input type="text" id="projectSkills" placeholder="e.g. Python, ROS, OpenCV, Hardware Design" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Partners Needed</label>
+                        <select id="projectTeamSize" required>
+                            <option value="">Select Size</option>
+                            <option>1 Partner</option>
+                            <option>2-3 Partners</option>
+                            <option>4-5 Partners</option>
+                            <option>5+ Partners</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Initial Status</label>
+                        <select id="projectStatus">
+                            <option>Looking for Partners</option>
+                            <option>In Progress</option>
+                            <option>Open to Ideas</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-shield-alt"></i> Publish Project with Protected Blueprint
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== REPORT PROJECT MODAL ===== -->
+    <div class="modal-overlay hidden" id="reportModal">
+        <div class="modal-card modal-sm">
+            <button class="modal-close" onclick="closeModal('reportModal')">&times;</button>
+            <h2><i class="fas fa-flag"></i> Report Inappropriate Content</h2>
+            <p class="modal-subtitle">Send a report to the ProjectBuddy safety team</p>
+            <form onsubmit="handleSendReport(event)">
+                <input type="hidden" id="reportProjectId">
+                <div class="form-group">
+                    <label>Reason for Report</label>
+                    <select id="reportReason" required>
+                        <option value="Inappropriate or offensive title">Inappropriate or offensive language</option>
+                        <option value="Suspected plagiarism or duplicate title">Duplicate or copy-paste title</option>
+                        <option value="Commercial spam or promotion">Commercial spam / Advertising</option>
+                        <option value="Other terms violation">Other community guidelines violation</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-danger btn-full">
+                    <i class="fas fa-flag"></i> Submit for Moderation
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== EDIT PROFILE MODAL ===== -->
+    <div class="modal-overlay hidden" id="editProfileModal">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeModal('editProfileModal')">&times;</button>
+            <h2><i class="fas fa-user-edit"></i> Edit Student Profile</h2>
+            <form onsubmit="handleEditProfile(event)">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="editName" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>University / College</label>
+                        <input type="text" id="editUniversity" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select id="editDepartment" required>
+                            <option>Computer Science</option>
+                            <option>Electrical Engineering</option>
+                            <option>Mechanical Engineering</option>
+                            <option>Data Science</option>
+                            <option>Information Technology</option>
+                            <option>Design</option>
+                            <option>Biotechnology</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Year of Study</label>
+                    <select id="editYear" required>
+                        <option>1st Year</option>
+                        <option>2nd Year</option>
+                        <option>3rd Year</option>
+                        <option>4th Year</option>
+                        <option>Post Graduate</option>
+                        <option>PhD</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Skills (comma-separated)</label>
+                    <input type="text" id="editSkills" required>
+                </div>
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea id="editBio" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== SEND REQUEST MODAL ===== -->
+    <div class="modal-overlay hidden" id="requestModal">
+        <div class="modal-card modal-sm">
+            <button class="modal-close" onclick="closeModal('requestModal')">&times;</button>
+            <h2><i class="fas fa-handshake"></i> Send Partnership Proposal</h2>
+            <p class="modal-subtitle" id="requestModalTitle">Request to partner on this project</p>
+            <form onsubmit="handleSendRequest(event)">
+                <input type="hidden" id="requestProjectId">
+                <div class="form-group">
+                    <label>Message to the Project Creator</label>
+                    <textarea id="requestMessage" placeholder="Highlight your skills and what you can contribute to this project..." rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-paper-plane"></i> Send Partnership Proposal
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== TOAST NOTIFICATION ===== -->
+    <div class="toast hidden" id="toast">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer" id="mainFooter">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3><i class="fas fa-rocket"></i> ProjectBuddy</h3>
+                <p>Protected Student Ideation & Partner Matching. Zero idea theft, verified collaboration.</p>
+            </div>
+            <div class="footer-links">
+                <a href="#" onclick="showPage('landing')">About ProjectBuddy</a>
+                <a href="presentation.html" target="_blank"><i class="fas fa-desktop"></i> View Presentation Deck</a>
+                <a href="ProjectBuddy_Presentation.pptx" download><i class="fas fa-file-powerpoint"></i> Download PPTX</a>
+                <a href="#">Privacy & Intellectual Property Policy</a>
+                <a href="#">Student Guidelines</a>
+            </div>
+            <p class="footer-copy">&copy; 2026 ProjectBuddy. Protected under Student Zero-Knowledge Intellectual Property Protocols.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

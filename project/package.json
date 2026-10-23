@@ -1,0 +1,29 @@
+{
+  "name": "projectbuddy",
+  "version": "1.0.0",
+  "description": "Student project collaboration platform - Find your perfect project partner",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node seed.js",
+    "check": "node --check server.js && node --check app.js && node --check seed.js && node --check routes/auth.js && node --check routes/users.js && node --check routes/projects.js && node --check routes/requests.js && node --check routes/account.js && node --check middleware/auth.js && node --check models/User.js && node --check models/Project.js && node --check models/Request.js && node --check models/ActivityEvent.js && node --check utils/email.js && node --check scripts/export-owner-report.js && node --check scripts/migrate-remove-admin-access.js",
+    "migrate:remove-admin": "node scripts/migrate-remove-admin-access.js",
+    "export:owner-report": "node scripts/export-owner-report.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.7.0",
+    "express-validator": "^7.2.0",
+    "helmet": "^8.1.0",
+    "express-rate-limit": "^7.5.0",
+    "nodemailer": "^6.10.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
