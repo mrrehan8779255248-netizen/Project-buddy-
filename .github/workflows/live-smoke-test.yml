@@ -12,35 +12,45 @@ jobs:
   smoke-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for public homepage
+      - name: Check styled homepage
         shell: bash
         run: |
           set -euo pipefail
           BASE_URL="https://projectbuddy-web.vercel.app"
           homepage_ok=0
-          for attempt in $(seq 1 16); do
+          for attempt in $(seq 1 20); do
             code="$(curl --silent --show-error --max-time 20 -o /tmp/projectbuddy-home.html -w '%{http_code}' "$BASE_URL/" || true)"
             if [[ "$code" == "200" ]] && grep -qi "ProjectBuddy" /tmp/projectbuddy-home.html; then
               homepage_ok=1
               break
             fi
-            echo "Homepage is not ready yet (HTTP $code), attempt $attempt/16"
+            echo "Homepage is not ready yet (HTTP $code), attempt $attempt/20"
             sleep 5
           done
-          if [[ "$homepage_ok" != "1" ]]; then
-            echo "Homepage did not return ProjectBuddy HTML."
-            head -c 1000 /tmp/projectbuddy-home.html || true
-            exit 1
-          fi
+          test "$homepage_ok" = "1"
           echo "Homepage: HTTP 200"
 
-      - name: Check static assets
+      - name: Verify real CSS is served by Vercel CDN
         shell: bash
         run: |
           set -euo pipefail
-          code="$(curl --silent --show-error --max-time 20 -o /dev/null -w '%{http_code}' https://projectbuddy-web.vercel.app/style.css)"
+          code="$(curl --silent --show-error --max-time 20 -D /tmp/projectbuddy-css.headers -o /tmp/projectbuddy-style.css -w '%{http_code}' https://projectbuddy-web.vercel.app/style.css)"
+          echo "CSS HTTP: $code"
+          grep -Eiq '^content-type:[[:space:]]*text/css' /tmp/projectbuddy-css.headers
+          grep -q -- '--primary:' /tmp/projectbuddy-style.css
+          grep -q '\.navbar' /tmp/projectbuddy-style.css
+          echo "CSS: text/css, ProjectBuddy style rules present"
+
+      - name: Verify frontend JavaScript is served
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --max-time 20 -D /tmp/projectbuddy-js.headers -o /tmp/projectbuddy-app.js -w '%{http_code}' https://projectbuddy-web.vercel.app/app.js)"
+          echo "JavaScript HTTP: $code"
           test "$code" = "200"
-          echo "CSS asset: HTTP $code"
+          grep -Eiq '^content-type:[[:space:]]*(application|text)/(javascript|ecmascript)' /tmp/projectbuddy-js.headers
+          grep -q 'DOMContentLoaded' /tmp/projectbuddy-app.js
+          echo "JavaScript: correct content type and app code present"
 
       - name: Check MongoDB-backed health endpoint
         shell: bash
