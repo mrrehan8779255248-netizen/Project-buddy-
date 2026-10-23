@@ -116,7 +116,8 @@ app.use((req, res, next) => {
     if (/^\/(?:config|middleware|models|routes|scripts|utils|owner-reports)(?:\/|$)/i.test(req.path) || /^\/(?:server|seed)\.js$/i.test(req.path) || /^\/(?:\.env(?:\..*)?|package(?:-lock)?\.json|README(?:_BACKEND_SETUP)?\.md|generate_ppt\.py)$/i.test(req.path)) return res.sendStatus(404);
     return next();
 });
-app.use(express.static(path.join(__dirname), { dotfiles: 'deny', index: false }));
+// Vercel serves static files from public/ through its CDN; the same directory is used locally/Render.
+app.use(express.static(path.join(__dirname, 'public'), { dotfiles: 'deny', index: false }));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
