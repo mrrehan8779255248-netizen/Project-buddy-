@@ -1,0 +1,79 @@
+name: Live Vercel smoke test
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for public homepage
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE_URL="https://projectbuddy-web.vercel.app"
+          homepage_ok=0
+          for attempt in $(seq 1 16); do
+            code="$(curl --silent --show-error --max-time 20 -o /tmp/projectbuddy-home.html -w '%{http_code}' "$BASE_URL/" || true)"
+            if [[ "$code" == "200" ]] && grep -qi "ProjectBuddy" /tmp/projectbuddy-home.html; then
+              homepage_ok=1
+              break
+            fi
+            echo "Homepage is not ready yet (HTTP $code), attempt $attempt/16"
+            sleep 5
+          done
+          if [[ "$homepage_ok" != "1" ]]; then
+            echo "Homepage did not return ProjectBuddy HTML."
+            head -c 1000 /tmp/projectbuddy-home.html || true
+            exit 1
+          fi
+          echo "Homepage: HTTP 200"
+
+      - name: Check static assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --max-time 20 -o /dev/null -w '%{http_code}' https://projectbuddy-web.vercel.app/style.css)"
+          test "$code" = "200"
+          echo "CSS asset: HTTP $code"
+
+      - name: Check MongoDB-backed health endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --max-time 25 -o /tmp/projectbuddy-health.json -w '%{http_code}' https://projectbuddy-web.vercel.app/api/health || true)"
+          echo "Health endpoint HTTP: $code"
+          cat /tmp/projectbuddy-health.json || true
+          test "$code" = "200"
+          jq -e '.status == "ok" and .database == "connected"' /tmp/projectbuddy-health.json
+
+      - name: Check API validation without creating an account
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --max-time 25 -o /tmp/projectbuddy-validation.json -w '%{http_code}' -X POST -H 'content-type: application/json' --data '{}' https://projectbuddy-web.vercel.app/api/auth/register || true)"
+          echo "Empty registration validation HTTP: $code"
+          cat /tmp/projectbuddy-validation.json || true
+          test "$code" = "400"
+          jq -e '.message == "Name is required"' /tmp/projectbuddy-validation.json
+
+      - name: Report email recovery readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --max-time 25 -o /tmp/projectbuddy-recovery.json -w '%{http_code}' -X POST -H 'content-type: application/json' --data '{"email":"smoke-test@projectbuddy.invalid"}' https://projectbuddy-web.vercel.app/api/auth/forgot-password || true)"
+          if [[ "$code" == "503" ]]; then
+            echo "::warning::Password recovery requires SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS, and EMAIL_FROM in Vercel."
+            cat /tmp/projectbuddy-recovery.json || true
+          elif [[ "$code" == "200" ]]; then
+            echo "Recovery endpoint returned generic success; no account was created by this test."
+          else
+            echo "Recovery endpoint returned HTTP $code"
+            cat /tmp/projectbuddy-recovery.json || true
+            exit 1
+          fi
