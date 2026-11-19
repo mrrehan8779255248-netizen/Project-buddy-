@@ -2699,3 +2699,38 @@ body { background-size: 140% 140%, 130% 130%, auto; animation: glassDrift 24s ea
     .profile-section, .profile-stat-card, .mini-profile-card, .float-card { will-change: auto; }
     .btn:hover::after { animation: none; }
 }
+
+/* Keep account sign-out visible and comfortable to tap at every viewport size. */
+.nav-links a.logout-btn {
+    flex-direction: row;
+    gap: 8px;
+    min-height: 42px;
+    padding: 9px 14px;
+    margin-left: 4px;
+    border: 1px solid rgba(220,38,38,.2);
+    border-radius: 13px;
+    background: rgba(220,38,38,.08);
+    color: #b42332 !important;
+    font-size: .84rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.nav-links a.logout-btn i { font-size: .95rem; }
+.nav-links a.logout-btn span { display: inline; font-size: .82rem; }
+.nav-links a.logout-btn:hover, .nav-links a.logout-btn:focus-visible {
+    background: #b42332 !important;
+    border-color: #b42332;
+    color: #fff !important;
+    box-shadow: 0 8px 20px rgba(180,35,50,.2);
+}
+@media (max-width: 680px) {
+    .nav-container { height: auto; min-height: 64px; flex-wrap: wrap; gap: 4px 12px; padding-top: 8px; padding-bottom: 8px; }
+    .nav-links { flex: 1 1 auto; flex-wrap: wrap; justify-content: flex-end; }
+    .nav-links a.logout-btn { margin-left: 2px; padding: 8px 11px; }
+}
+@media (max-width: 480px) {
+    .nav-container { justify-content: center; }
+    .nav-container > .logo { width: 100%; justify-content: center; }
+    .nav-links { width: 100%; justify-content: center; }
+    .nav-links a.logout-btn { min-height: 40px; }
+}
