@@ -44,7 +44,6 @@
                     <span class="badge hidden" id="requestBadge">0</span>
                 </a>
                 <a href="#" onclick="showPage('profile')" class="nav-item" id="navProfileItem"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
-                <a href="#" onclick="logout()" class="nav-item logout-btn" title="Sign out of ProjectBuddy" aria-label="Sign out of ProjectBuddy"><i class="fas fa-sign-out-alt" aria-hidden="true"></i><span>Sign out</span></a>
             </div>
         </div>
     </nav>
@@ -540,6 +539,13 @@
                                 <i class="fas fa-shield-alt"></i> Zero-Knowledge Protected
                             </small>
                         </div>
+                        <div class="profile-stat-card profile-account-actions">
+                            <h4>Account</h4>
+                            <p>Sign out of your ProjectBuddy account on this device.</p>
+                            <button class="btn logout-btn" type="button" onclick="logout()" aria-label="Sign out of ProjectBuddy">
+                                <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sign out
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -876,3 +882,4 @@
     <script src="app.js"></script>
 </body>
 </html>
+
