@@ -553,7 +553,7 @@
             <button class="modal-close" onclick="closeModal('collaborationModal')">&times;</button>
             <div class="collab-workspace-header">
                 <div>
-                    <span class="nda-badge"><i class="fas fa-handshake"></i> Verified Mutual Partnership Workspace</span>
+                    <span class="nda-badge"><i class="fas fa-lock"></i> Private one-to-one workspace</span>
                     <h2 id="collabProjectTitle">Project Title</h2>
                     <p id="collabPartnerInfo">Collaborating with: <strong>Partner Name</strong></p>
                 </div>
@@ -596,14 +596,14 @@
                 <!-- Right Pane: Real-Time Partner Chat Stream -->
                 <div class="collab-chat-pane">
                     <div class="chat-header">
-                        <h4><i class="fas fa-comments"></i> Partner Discussion Stream</h4>
-                        <span class="online-indicator"><i class="fas fa-circle"></i> Connected</span>
+                        <h4><i class="fas fa-comments"></i> Your private chat</h4>
+                        <span class="online-indicator" id="chatConnectionState"><i class="fas fa-circle"></i> Live</span>
                     </div>
                     <div class="chat-messages-container" id="chatMessagesContainer">
                         <!-- Populated dynamically with live messages -->
                     </div>
                     <form class="chat-input-bar" onsubmit="handleSendChatMessage(event)">
-                        <input type="text" id="chatInputMessage" placeholder="Type a message to your project partner..." required autocomplete="off">
+                        <input type="text" id="chatInputMessage" maxlength="1000" placeholder="Message your partner privately…" required autocomplete="off">
                         <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
                     </form>
                 </div>

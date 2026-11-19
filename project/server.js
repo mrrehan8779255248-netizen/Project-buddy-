@@ -13,6 +13,7 @@ const projectRoutes = require('./routes/projects');
 const requestRoutes = require('./routes/requests');
 const accountRoutes = require('./routes/account');
 const ActivityEvent = require('./models/ActivityEvent');
+const CollaborationMessage = require('./models/CollaborationMessage');
 
 const app = express();
 app.disable('x-powered-by');
@@ -97,7 +98,10 @@ async function ensureDatabase(req, res, next) {
     try {
         if (!databaseConnectionPromise) {
             databaseConnectionPromise = connectDB()
-                .then(() => ActivityEvent.createIndexes())
+                .then(async () => {
+                    await ActivityEvent.createIndexes();
+                    await CollaborationMessage.createIndexes();
+                })
                 .catch(error => {
                     databaseConnectionPromise = null;
                     throw error;
@@ -167,6 +171,7 @@ async function start() {
     await connectDB();
     // Ensure query and one-year retention indexes exist even with autoIndex disabled in production.
     await ActivityEvent.createIndexes();
+    await CollaborationMessage.createIndexes();
     server = app.listen(PORT, () => console.log(`ProjectBuddy API listening on port ${PORT}`));
 }
 

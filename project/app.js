@@ -166,6 +166,8 @@ function calculateSkillMatch(projectSkills, userSkills) {
 // ===== PAGE ROUTING =====
 let currentPage = 'landing';
 let activeCollabProjectId = null;
+let activeCollabPartnerId = null;
+let chatPollTimer = null;
 
 function showPage(pageId) {
     const db = getDB();
@@ -498,8 +500,9 @@ function renderFeed(filter) {
                 <i class="fas fa-eye"></i> View Blueprint
             </button>`;
         } else if (isPartner) {
-            actionBtn = `<button class="btn btn-success btn-sm" onclick="openCollaborationRoom('${project.id}')">
-                <i class="fas fa-comments"></i> Open Collaboration Room
+            const partnerId = isPartner.fromUserId === user.id ? isPartner.toUserId : isPartner.fromUserId;
+            actionBtn = `<button class="btn btn-success btn-sm" onclick="openCollaborationRoom('${project.id}', '${partnerId}')">
+                <i class="fas fa-comments"></i> Private Chat
             </button>`;
         } else if (hasRequested) {
             actionBtn = `<span class="request-pending request-status"><i class="fas fa-clock"></i> Proposal Sent</span>`;
@@ -671,8 +674,9 @@ function renderDiscover() {
         if (isOwner) {
             actionBtn = `<button class="btn btn-ghost btn-sm" onclick="viewProject('${project.id}')">View</button>`;
         } else if (isPartner) {
-            actionBtn = `<button class="btn btn-success btn-sm" onclick="openCollaborationRoom('${project.id}')">
-                <i class="fas fa-comments"></i> Room
+            const partnerId = isPartner.fromUserId === user.id ? isPartner.toUserId : isPartner.fromUserId;
+            actionBtn = `<button class="btn btn-success btn-sm" onclick="openCollaborationRoom('${project.id}', '${partnerId}')">
+                <i class="fas fa-comments"></i> Private Chat
             </button>`;
         } else if (hasRequested) {
             actionBtn = `<span class="request-pending request-status">Proposed</span>`;
@@ -786,11 +790,11 @@ function renderMyProjects(tab) {
                             <span><i class="fas fa-handshake"></i> ${acceptedPartners.length} Active Partner${acceptedPartners.length !== 1 ? 's' : ''}</span>
                         </div>
                         <div class="my-project-actions">
-                            ${acceptedPartners.length > 0 ? `
-                                <button class="btn btn-success btn-sm" onclick="openCollaborationRoom('${p.id}')">
-                                    <i class="fas fa-comments"></i> Partner Chat & Workspace
-                                </button>
-                            ` : ''}
+                            ${acceptedPartners.map(req => {
+                                const partnerId = req.fromUserId === user.id ? req.toUserId : req.fromUserId;
+                                const partner = db.users.find(u => u.id === partnerId);
+                                return `<button class="btn btn-success btn-sm" onclick="openCollaborationRoom('${p.id}', '${partnerId}')"><i class="fas fa-comments"></i> Chat with ${escapeHtml(partner?.name || 'partner')}</button>`;
+                            }).join('')}
                             <button class="btn btn-danger btn-sm" onclick="deleteProject('${p.id}')">
                                 <i class="fas fa-trash"></i> Delete
                             </button>
@@ -843,8 +847,8 @@ function renderMyProjects(tab) {
                         <div class="project-card-tags">
                             ${project.skills.map(s => `<span class="project-tag">${escapeHtml(s)}</span>`).join('')}
                         </div>
-                        <button class="btn btn-primary btn-sm" onclick="openCollaborationRoom('${project.id}')">
-                            <i class="fas fa-comments"></i> Open Collaboration Room
+                        <button class="btn btn-primary btn-sm" onclick="openCollaborationRoom('${project.id}', '${partnerId}')">
+                            <i class="fas fa-comments"></i> Chat privately with ${escapeHtml(partner.name)}
                         </button>
                     </div>
                 </div>
@@ -928,8 +932,8 @@ function renderRequests(tab) {
         } else if (req.status === 'accepted') {
             statusHtml = '<span class="request-accepted request-status"><i class="fas fa-check-circle"></i> Partnership Accepted</span>';
             actionsHtml = `
-                <button class="btn btn-outline btn-sm" onclick="openCollaborationRoom('${project.id}')">
-                    <i class="fas fa-comments"></i> Enter Collaboration Room
+                <button class="btn btn-outline btn-sm" onclick="openCollaborationRoom('${project.id}', '${req.fromUserId === user.id ? req.toUserId : req.fromUserId}')">
+                    <i class="fas fa-comments"></i> Open Private Chat
                 </button>
             `;
         } else {
@@ -980,31 +984,62 @@ async function handleRequestAction(requestId, action) {
 }
 
 // ===== INTERACTIVE COLLABORATION ROOM & LIVE CHAT =====
-async function openCollaborationRoom(projectId) {
+async function openCollaborationRoom(projectId, selectedPartnerId = '') {
     if (!requireAuth()) return;
     const db = getDB();
     const user = getCurrentUser();
     const project = db.projects.find(p => p.id === projectId);
     if (!project) { showToast('Project is not available. Refresh and try again.'); return; }
-    activeCollabProjectId = projectId;
-    const partnerReq = db.requests.find(r => r.projectId === projectId && r.status === 'accepted' && (r.fromUserId === user.id || r.toUserId === user.id));
+    const acceptedRequests = db.requests.filter(r => r.projectId === projectId && r.status === 'accepted' && (r.fromUserId === user.id || r.toUserId === user.id));
+    const partnerReq = acceptedRequests.find(r => {
+        const counterpartId = r.fromUserId === user.id ? r.toUserId : r.fromUserId;
+        return !selectedPartnerId || counterpartId === selectedPartnerId;
+    });
     const isOwner = project.userId === user.id;
-    if (!isOwner && !partnerReq) { showToast('Collaboration room is available after a partnership is accepted.'); return; }
-    const partnerId = isOwner ? partnerReq?.fromUserId : project.userId;
+    if (!partnerReq) { showToast('Choose a partner with an accepted partnership to open a private chat.'); return; }
+    const partnerId = partnerReq.fromUserId === user.id ? partnerReq.toUserId : partnerReq.fromUserId;
     const partner = db.users.find(u => u.id === partnerId);
+    activeCollabProjectId = projectId;
+    activeCollabPartnerId = partnerId;
     document.getElementById('collabProjectTitle').textContent = project.title;
-    document.getElementById('collabPartnerInfo').innerHTML = `Collaborating with: <strong>${escapeHtml(partner ? partner.name : 'your partner')}</strong> ${partner ? `(${escapeHtml(partner.department)})` : ''}`;
+    document.getElementById('collabPartnerInfo').innerHTML = `Private one-to-one chat with <strong>${escapeHtml(partner ? partner.name : 'your partner')}</strong> ${partner ? `(${escapeHtml(partner.department)})` : ''}`;
     document.getElementById('collabProjectDescription').textContent = project.description || 'Project blueprint is available to approved partners.';
     try {
-        const messages = await apiRequest(`/api/projects/${encodeURIComponent(projectId)}/messages`);
+        const messages = await apiRequest(`/api/projects/${encodeURIComponent(projectId)}/messages?partnerId=${encodeURIComponent(partnerId)}`);
         db.collaborationMessages = (messages || []).map(msg => ({
             id: String(msg._id), projectId, senderId: String(msg.sender?._id || msg.sender),
+            recipientId: String(msg.recipient?._id || msg.recipient || partnerId),
             senderName: msg.sender?.name || 'Collaborator', text: msg.message, timestamp: msg.createdAt
         }));
         saveDB(db);
-    } catch (error) { showToast(error.message || 'Could not load collaboration messages.'); }
+    } catch (error) { showToast(error.message || 'Could not load private messages.'); return; }
     renderChatMessages();
     document.getElementById('collaborationModal').classList.remove('hidden');
+    const state = document.getElementById('chatConnectionState');
+    if (state) { state.classList.remove('is-offline'); state.innerHTML = '<i class="fas fa-circle"></i> Live'; }
+    clearInterval(chatPollTimer);
+    chatPollTimer = setInterval(() => pollPrivateChat(projectId, partnerId), 2500);
+}
+
+async function pollPrivateChat(projectId, partnerId) {
+    if (activeCollabProjectId !== projectId || activeCollabPartnerId !== partnerId || document.getElementById('collaborationModal')?.classList.contains('hidden')) return;
+    try {
+        const messages = await apiRequest(`/api/projects/${encodeURIComponent(projectId)}/messages?partnerId=${encodeURIComponent(partnerId)}`);
+        const db = getDB();
+        const existing = new Set((db.collaborationMessages || []).filter(m => m.projectId === projectId && ((m.senderId === partnerId && m.recipientId === db.currentUserId) || (m.senderId === db.currentUserId && m.recipientId === partnerId))).map(m => m.id));
+        let changed = false;
+        (messages || []).forEach(msg => {
+            if (existing.has(String(msg._id))) return;
+            db.collaborationMessages.push({ id: String(msg._id), projectId, senderId: String(msg.sender?._id || msg.sender), recipientId: String(msg.recipient?._id || msg.recipient || (String(msg.sender?._id || msg.sender) === partnerId ? db.currentUserId : partnerId)), senderName: msg.sender?.name || 'Collaborator', text: msg.message, timestamp: msg.createdAt });
+            changed = true;
+        });
+        const state = document.getElementById('chatConnectionState');
+        if (state) { state.classList.remove('is-offline'); state.innerHTML = '<i class="fas fa-circle"></i> Live'; }
+        if (changed) { saveDB(db); renderChatMessages(); }
+    } catch (error) {
+        const state = document.getElementById('chatConnectionState');
+        if (state) { state.classList.add('is-offline'); state.innerHTML = '<i class="fas fa-circle"></i> Reconnecting'; }
+    }
 }
 
 function renderChatMessages() {
@@ -1012,7 +1047,7 @@ function renderChatMessages() {
     const user = getCurrentUser();
     const container = document.getElementById('chatMessagesContainer');
     if (!container || !activeCollabProjectId) return;
-    const messages = (db.collaborationMessages || []).filter(m => m.projectId === activeCollabProjectId);
+    const messages = (db.collaborationMessages || []).filter(m => m.projectId === activeCollabProjectId && ((m.senderId === activeCollabPartnerId && m.recipientId === user.id) || (m.senderId === user.id && m.recipientId === activeCollabPartnerId)));
     if (messages.length === 0) {
         container.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:30px 10px;font-size:.85rem"><i class="fas fa-handshake" style="font-size:1.8rem;margin-bottom:8px;display:block"></i>Start your collaboration! Say hello and outline your first milestones.</div>`;
         return;
@@ -1030,10 +1065,12 @@ async function handleSendChatMessage(e) {
     const text = input.value.trim();
     if (!text || !activeCollabProjectId) return;
     try {
-        const msg = await apiRequest(`/api/projects/${encodeURIComponent(activeCollabProjectId)}/messages`, { method: 'POST', body: JSON.stringify({ message: text }) });
+        const projectId = activeCollabProjectId;
+        const partnerId = activeCollabPartnerId;
+        const msg = await apiRequest(`/api/projects/${encodeURIComponent(projectId)}/messages`, { method: 'POST', body: JSON.stringify({ message: text, partnerId }) });
         const db = getDB();
         if (!Array.isArray(db.collaborationMessages)) db.collaborationMessages = [];
-        db.collaborationMessages.push({ id: String(msg._id), projectId: activeCollabProjectId, senderId: String(msg.sender?._id || db.currentUserId), senderName: msg.sender?.name || getCurrentUser()?.name || 'You', text: msg.message, timestamp: msg.createdAt });
+        db.collaborationMessages.push({ id: String(msg._id), projectId: activeCollabProjectId, senderId: String(msg.sender?._id || db.currentUserId), recipientId: String(msg.recipient?._id || msg.recipient || activeCollabPartnerId), senderName: msg.sender?.name || getCurrentUser()?.name || 'You', text: msg.message, timestamp: msg.createdAt });
         saveDB(db);
         input.value = '';
         renderChatMessages();
@@ -1128,8 +1165,8 @@ function viewProject(projectId) {
         `;
     } else if (isPartner) {
         actionBtn = `
-            <button class="btn btn-success btn-full" onclick="closeModal('viewProjectModal'); openCollaborationRoom('${project.id}');" style="margin-top:16px;">
-                <i class="fas fa-comments"></i> Enter Partner Collaboration Room
+            <button class="btn btn-success btn-full" onclick="closeModal('viewProjectModal'); openCollaborationRoom('${project.id}', '${isPartner.fromUserId === user.id ? isPartner.toUserId : isPartner.fromUserId}');" style="margin-top:16px;">
+                <i class="fas fa-comments"></i> Open Private Partner Chat
             </button>
         `;
     }
@@ -1401,17 +1438,23 @@ async function handleEditProfile(e) {
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) modal.classList.add('hidden');
+    if (modalId === 'collaborationModal') {
+        clearInterval(chatPollTimer);
+        chatPollTimer = null;
+        activeCollabProjectId = null;
+        activeCollabPartnerId = null;
+    }
 }
 
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', function(e) {
-        if (e.target === this) this.classList.add('hidden');
+        if (e.target === this) closeModal(this.id);
     });
 });
 
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
+        document.querySelectorAll('.modal-overlay').forEach(m => closeModal(m.id));
     }
 });
 

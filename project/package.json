@@ -1,6 +1,6 @@
 {
   "name": "projectbuddy",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Student project collaboration platform - Find your perfect project partner",
   "main": "index.js",
   "scripts": {

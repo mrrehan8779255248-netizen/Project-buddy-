@@ -11,6 +11,11 @@ const collaborationMessageSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    recipient: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     message: {
         type: String,
         required: true,
@@ -21,8 +26,12 @@ const collaborationMessageSchema = new mongoose.Schema({
     timestamps: true
 });
 
+collaborationMessageSchema.index({ projectId: 1, sender: 1, recipient: 1, createdAt: 1 });
+collaborationMessageSchema.index({ projectId: 1, recipient: 1, sender: 1, createdAt: 1 });
+
 collaborationMessageSchema.pre(/^find/, function(next) {
-    this.populate('sender', 'name department university');
+    this.populate('sender', 'name department university')
+        .populate('recipient', 'name department university');
     next();
 });
 

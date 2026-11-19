@@ -208,8 +208,8 @@ router.post('/:id/report', protect, async (req, res) => {
 });
 
 // @route   GET /api/projects/:id/messages
-// @desc    Get collaboration room messages for an accepted project partnership
-// @access  Private (Owner or Accepted Partner)
+// @desc    Get messages for one accepted partner pair only
+// @access  Private (one-to-one accepted partners)
 router.get('/:id/messages', protect, async (req, res) => {
     try {
         const project = await Project.findById(req.params.id);
@@ -217,21 +217,31 @@ router.get('/:id/messages', protect, async (req, res) => {
             return res.status(404).json({ message: 'Project not found' });
         }
 
-        const isOwner = project.user._id.toString() === req.user._id.toString();
-        const isPartner = await Request.findOne({
+        const partnerId = String(req.query.partnerId || '');
+        if (!/^[a-f\d]{24}$/i.test(partnerId) || partnerId === req.user._id.toString()) {
+            return res.status(400).json({ message: 'Choose a valid one-to-one chat partner.' });
+        }
+        const partnership = await Request.findOne({
             project: project._id,
             status: 'accepted',
             $or: [
-                { fromUser: req.user._id },
-                { toUser: req.user._id }
+                { fromUser: req.user._id, toUser: partnerId },
+                { fromUser: partnerId, toUser: req.user._id }
             ]
         });
-
-        if (!isOwner && !isPartner) {
-            return res.status(403).json({ message: 'Access denied: Collaboration room is exclusive to matched partners.' });
+        if (!partnership) return res.status(403).json({ message: 'This private chat is available only to its accepted partners.' });
+        const filter = {
+            projectId: project._id,
+            $or: [
+                { sender: req.user._id, recipient: partnerId },
+                { sender: partnerId, recipient: req.user._id }
+            ]
+        };
+        if (req.query.after) {
+            const after = new Date(req.query.after);
+            if (!Number.isNaN(after.getTime())) filter.createdAt = { $gt: after };
         }
-
-        const messages = await CollaborationMessage.find({ projectId: project._id })
+        const messages = await CollaborationMessage.find(filter)
             .sort({ createdAt: 1 });
 
         res.json(messages);
@@ -242,13 +252,19 @@ router.get('/:id/messages', protect, async (req, res) => {
 });
 
 // @route   POST /api/projects/:id/messages
-// @desc    Post a message in the partner collaboration room
-// @access  Private (Owner or Accepted Partner)
+// @desc    Send a private message to one accepted partner
+// @access  Private (one-to-one accepted partners)
 router.post('/:id/messages', protect, async (req, res) => {
     try {
-        const { message } = req.body;
-        if (!message || !message.trim()) {
+        const { message, partnerId } = req.body;
+        if (typeof message !== 'string' || !message.trim()) {
             return res.status(400).json({ message: 'Message content cannot be blank' });
+        }
+        if (String(message).trim().length > 1000) {
+            return res.status(400).json({ message: 'Messages must be 1000 characters or fewer.' });
+        }
+        if (!/^[a-f\d]{24}$/i.test(String(partnerId || '')) || String(partnerId) === req.user._id.toString()) {
+            return res.status(400).json({ message: 'Choose a valid one-to-one chat partner.' });
         }
 
         const project = await Project.findById(req.params.id);
@@ -256,23 +272,20 @@ router.post('/:id/messages', protect, async (req, res) => {
             return res.status(404).json({ message: 'Project not found' });
         }
 
-        const isOwner = project.user._id.toString() === req.user._id.toString();
-        const isPartner = await Request.findOne({
+        const partnership = await Request.findOne({
             project: project._id,
             status: 'accepted',
             $or: [
-                { fromUser: req.user._id },
-                { toUser: req.user._id }
+                { fromUser: req.user._id, toUser: partnerId },
+                { fromUser: partnerId, toUser: req.user._id }
             ]
         });
-
-        if (!isOwner && !isPartner) {
-            return res.status(403).json({ message: 'Only project owners and accepted partners can collaborate in this room' });
-        }
+        if (!partnership) return res.status(403).json({ message: 'This private chat is available only to its accepted partners.' });
 
         const newMessage = await CollaborationMessage.create({
             projectId: project._id,
             sender: req.user._id,
+            recipient: partnerId,
             message: message.trim()
         });
 

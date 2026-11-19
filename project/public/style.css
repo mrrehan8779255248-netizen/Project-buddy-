@@ -2516,3 +2516,112 @@ button:disabled { opacity: .65; cursor: wait; }
     .profile-upload-row { align-items: flex-start; }
     .profile-avatar-preview { width: 68px; height: 68px; }
 }
+
+/* ===== ProjectBuddy glass / midnight blue visual system ===== */
+:root {
+    --primary: #2563eb;
+    --primary-dark: #153e9f;
+    --primary-light: #eaf1ff;
+    --secondary: #0f172a;
+    --accent: #60a5fa;
+    --bg: #eef3fb;
+    --bg-white: rgba(255,255,255,.9);
+    --text-primary: #101a31;
+    --text-secondary: #53627b;
+    --text-muted: #8290a8;
+    --border: rgba(75,99,145,.16);
+    --border-light: rgba(75,99,145,.1);
+    --shadow-sm: 0 4px 14px rgba(20,44,91,.06);
+    --shadow-md: 0 12px 30px rgba(20,44,91,.09);
+    --shadow-lg: 0 22px 54px rgba(20,44,91,.14);
+    --shadow-xl: 0 28px 80px rgba(10,27,67,.23);
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 22px;
+    --radius-xl: 28px;
+    --gradient-primary: linear-gradient(135deg,#2563eb 0%,#1648b9 100%);
+    --gradient-hero: linear-gradient(135deg,#0f1b37 0%,#173e8a 56%,#2873e8 100%);
+    --gradient-card: linear-gradient(145deg,rgba(255,255,255,.94),rgba(234,241,255,.77));
+}
+
+body {
+    background: radial-gradient(ellipse at 12% 6%,rgba(96,165,250,.18),transparent 35%),
+                radial-gradient(ellipse at 90% 30%,rgba(37,99,235,.1),transparent 30%),#eef3fb;
+    color: var(--text-primary);
+}
+body::before {
+    content: ""; position: fixed; z-index: -1; inset: 0; pointer-events: none;
+    background: linear-gradient(135deg,rgba(255,255,255,.14),transparent 48%,rgba(37,99,235,.04));
+}
+.navbar {
+    background: rgba(248,251,255,.78);
+    border-bottom: 1px solid rgba(255,255,255,.8);
+    box-shadow: 0 8px 28px rgba(15,35,75,.07);
+    -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px);
+}
+.logo { color: #142244; font-weight: 800; letter-spacing: -.04em; }
+.logo > i { color: #2563eb; }
+.nav-links a { border-radius: 12px; transition: var(--transition); }
+.nav-links a:hover, .nav-links a.active { background: rgba(37,99,235,.09); color: #1d4ed8; }
+.btn { border-radius: 12px; font-weight: 650; box-shadow: 0 5px 14px rgba(16,44,104,.08); }
+.btn-primary { background: linear-gradient(135deg,#3175f5,#1f55c7); box-shadow: 0 8px 18px rgba(37,99,235,.24); }
+.btn-primary:hover { background: linear-gradient(135deg,#2563eb,#1748b2); transform: translateY(-1px); }
+.card, .project-card, .profile-section, .profile-stat-card, .my-project-item,
+.request-card, .suggestion-card, .feed-card, .announcement-card, .auth-card,
+.profile-card, .empty-state, .milestone-item {
+    border: 1px solid rgba(255,255,255,.78);
+    background: linear-gradient(145deg,rgba(255,255,255,.86),rgba(246,249,255,.7));
+    box-shadow: 0 14px 40px rgba(20,44,91,.075);
+    -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+    border-radius: 20px;
+}
+.hero, .landing-hero, .feed-header, .profile-banner { background-image: var(--gradient-hero); }
+.hero h1, .landing-hero h1 { letter-spacing: -.055em; }
+.modal-overlay { background: rgba(8,18,40,.56); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.modal-card {
+    border: 1px solid rgba(255,255,255,.74);
+    background: linear-gradient(145deg,rgba(255,255,255,.96),rgba(239,245,255,.93));
+    box-shadow: 0 28px 90px rgba(5,20,55,.3);
+    border-radius: 24px;
+}
+.collab-workspace-header { border-color: rgba(255,255,255,.24); }
+.collab-workspace-header h2 { color: #fff; }
+.collab-workspace-header p { color: rgba(235,243,255,.82); }
+.collaborationModal .modal-card, #collaborationModal .modal-card { background: linear-gradient(135deg,#101a31,#12264c 45%,#173d83); color: #f6f9ff; }
+.nda-badge { background: rgba(255,255,255,.13); color: #dceaff; border: 1px solid rgba(255,255,255,.16); }
+.collab-box-unlocked, .collab-milestones-box {
+    background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.14);
+    border-radius: 18px; color: #eef4ff; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+}
+.collab-box-unlocked h4, .collab-milestones-box h4 { color: #fff; }
+.collab-box-unlocked p { color: rgba(238,244,255,.8); }
+.milestone-item { background: rgba(255,255,255,.08); color: #e7efff; border-color: rgba(255,255,255,.12); }
+.milestone-item:hover { border-color: #60a5fa; }
+.milestone-progress { background: rgba(96,165,250,.19); color: #bfdbfe; }
+.collab-chat-pane { height: min(66vh,680px); min-height: 430px; border: 1px solid rgba(255,255,255,.18); border-radius: 20px; background: rgba(5,13,30,.3); }
+.chat-header, .chat-input-bar { background: rgba(255,255,255,.94); }
+.chat-header h4 { color: #142244; }
+.chat-messages-container { background: radial-gradient(ellipse at 45% 0%,rgba(55,112,223,.12),transparent 55%),rgba(9,20,42,.22); }
+.chat-bubble { max-width: 84%; border-radius: 17px; padding: 11px 15px; box-shadow: 0 5px 16px rgba(3,12,32,.13); overflow-wrap: anywhere; }
+.chat-bubble-me { background: linear-gradient(135deg,#3479f6,#2454c5); border-bottom-right-radius: 5px; }
+.chat-bubble-partner { background: rgba(255,255,255,.95); border: 1px solid rgba(255,255,255,.78); color: #142244; border-bottom-left-radius: 5px; }
+.chat-input-bar { padding: 12px; gap: 10px; }
+.chat-input-bar input { min-width: 0; border-radius: 14px; padding: 12px 15px; background: #f3f6fc; border-color: rgba(75,99,145,.14); }
+.chat-input-bar button { border-radius: 14px; width: 44px; height: 44px; }
+.online-indicator { color: #16835d; }
+.online-indicator i { font-size: .52rem; }
+.online-indicator.is-offline { color: #b45309; }
+.footer { background: #0e1830; color: #d8e2f5; }
+.footer p, .footer a { color: #a8b8d6; }
+input, textarea, select { border-radius: 12px; }
+input:focus, textarea:focus, select:focus { border-color: #4e82e8 !important; box-shadow: 0 0 0 3px rgba(37,99,235,.13); }
+.toast { border: 1px solid rgba(255,255,255,.68); border-radius: 16px; box-shadow: var(--shadow-lg); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+@media (max-width: 680px) {
+    .collab-chat-pane { height: 58vh; min-height: 340px; }
+    .chat-bubble { max-width: 92%; }
+    #collaborationModal .modal-card { padding: 22px 16px; }
+    .nav-container { -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
