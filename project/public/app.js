@@ -1446,6 +1446,25 @@ function closeModal(modalId) {
     }
 }
 
+function initGlassInteractions() {
+    const finePointer = window.matchMedia('(pointer: fine)').matches;
+    if (!finePointer) return;
+    const targets = '.feature-card, .project-card, .discover-card, .request-card, .my-project-item, .profile-section, .profile-stat-card, .mini-profile-card, .float-card';
+    document.addEventListener('pointermove', event => {
+        const card = event.target.closest?.(targets);
+        if (!card) return;
+        const bounds = card.getBoundingClientRect();
+        card.style.setProperty('--glass-x', `${((event.clientX - bounds.left) / bounds.width) * 100}%`);
+        card.style.setProperty('--glass-y', `${((event.clientY - bounds.top) / bounds.height) * 100}%`);
+    }, { passive: true });
+    document.addEventListener('pointerout', event => {
+        const card = event.target.closest?.(targets);
+        if (!card || (event.relatedTarget instanceof Node && card.contains(event.relatedTarget))) return;
+        card.style.removeProperty('--glass-x');
+        card.style.removeProperty('--glass-y');
+    }, true);
+}
+
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', function(e) {
         if (e.target === this) closeModal(this.id);
@@ -1472,6 +1491,7 @@ function showToast(message) {
 
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', async function() {
+    initGlassInteractions();
     const db = getDB();
     loadLatestAnnouncement();
     const token = sessionStorage.getItem(TOKEN_KEY);

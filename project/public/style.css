@@ -2625,3 +2625,77 @@ input:focus, textarea:focus, select:focus { border-color: #4e82e8 !important; bo
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* Extra interaction: reactive light, springy glass surfaces, and page transitions. */
+@keyframes glassDrift {
+    0%, 100% { background-position: 0% 0%, 100% 100%, 0 0; }
+    50% { background-position: 7% 4%, 92% 40%, 0 0; }
+}
+@keyframes pageArrive {
+    from { opacity: 0; transform: translateY(12px) scale(.995); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes glowSweep {
+    from { transform: translateX(-130%) skewX(-18deg); }
+    to { transform: translateX(180%) skewX(-18deg); }
+}
+body { background-size: 140% 140%, 130% 130%, auto; animation: glassDrift 24s ease-in-out infinite; }
+.page:not(.hidden) { animation: pageArrive .42s cubic-bezier(.2,.7,.2,1) both; }
+.feature-card, .project-card, .discover-card, .request-card, .my-project-item,
+.profile-section, .profile-stat-card, .mini-profile-card, .float-card {
+    position: relative;
+    transition: transform .28s cubic-bezier(.2,.7,.2,1), box-shadow .28s ease,
+                border-color .28s ease, background-color .28s ease, backdrop-filter .28s ease;
+    will-change: transform;
+}
+.feature-card::before, .project-card::before, .discover-card::before,
+.request-card::before, .my-project-item::before, .profile-section::before,
+.profile-stat-card::before, .mini-profile-card::before, .float-card::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    border-radius: inherit; opacity: 0; transition: opacity .28s ease;
+    background: radial-gradient(360px circle at var(--glass-x, 50%) var(--glass-y, 50%),rgba(96,165,250,.24),transparent 72%);
+}
+.feature-card:hover, .project-card:hover, .discover-card:hover, .request-card:hover,
+.my-project-item:hover, .profile-section:hover, .profile-stat-card:hover,
+.mini-profile-card:hover, .float-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(96,165,250,.52);
+    box-shadow: 0 22px 52px rgba(15,44,104,.15), inset 0 1px rgba(255,255,255,.88);
+    -webkit-backdrop-filter: blur(24px) saturate(145%);
+    backdrop-filter: blur(24px) saturate(145%);
+}
+.feature-card:hover::before, .project-card:hover::before, .discover-card:hover::before,
+.request-card:hover::before, .my-project-item:hover::before, .profile-section:hover::before,
+.profile-stat-card:hover::before, .mini-profile-card:hover::before, .float-card:hover::before { opacity: 1; }
+.hero-chip, .filter-chip, .tab-btn, .project-tag, .skill-match-tag, .nda-badge {
+    transition: transform .22s ease, box-shadow .22s ease, background-color .22s ease, border-color .22s ease;
+}
+.hero-chip:hover, .filter-chip:hover, .tab-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(37,99,235,.13); }
+.project-tag:hover, .skill-match-tag:hover { transform: translateY(-1px) scale(1.035); }
+.btn { position: relative; overflow: hidden; }
+.btn::after {
+    content: ""; position: absolute; top: -25%; bottom: -25%; left: 0; width: 34%;
+    pointer-events: none; opacity: 0;
+    background: linear-gradient(90deg,transparent,rgba(255,255,255,.36),transparent);
+}
+.btn:hover::after { opacity: 1; animation: glowSweep .68s ease both; }
+.btn:active { transform: translateY(1px) scale(.98); }
+.btn:focus-visible, a:focus-visible, .filter-chip:focus-visible, .tab-btn:focus-visible {
+    outline: 3px solid rgba(96,165,250,.8); outline-offset: 3px;
+}
+.modal-card { animation: pageArrive .32s cubic-bezier(.2,.7,.2,1) both; }
+.chat-bubble { animation: pageArrive .22s ease both; }
+.chat-bubble:nth-child(2n) { animation-delay: .025s; }
+@media (max-width: 700px) {
+    body { animation-duration: 34s; }
+    .feature-card:hover, .project-card:hover, .discover-card:hover, .request-card:hover,
+    .my-project-item:hover, .profile-section:hover, .profile-stat-card:hover,
+    .mini-profile-card:hover, .float-card:hover { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    body { animation: none; }
+    .page:not(.hidden), .modal-card, .chat-bubble { animation: none; }
+    .feature-card, .project-card, .discover-card, .request-card, .my-project-item,
+    .profile-section, .profile-stat-card, .mini-profile-card, .float-card { will-change: auto; }
+    .btn:hover::after { animation: none; }
+}
