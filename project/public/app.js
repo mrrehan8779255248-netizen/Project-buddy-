@@ -172,6 +172,8 @@ let chatPollTimer = null;
 function showPage(pageId) {
     const db = getDB();
 
+    const signOutLink = document.querySelector('#navLoggedIn .logout-btn');
+    if (signOutLink) signOutLink.classList.toggle('hidden', pageId === 'profile');
 
     document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
     const target = document.getElementById('page-' + pageId);
